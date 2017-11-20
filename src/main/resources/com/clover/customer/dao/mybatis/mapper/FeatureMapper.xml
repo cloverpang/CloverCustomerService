@@ -1,0 +1,141 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clover.customer.dao.mybatis.mapper.FeatureMapper">
+    <select id="get" parameterType="string" resultType="com.clover.customer.beans.domain.CrmFeatureBean">
+        SELECT
+        a.id as id,
+        a.featureCode as featureCode,
+        a.featureName as featureName,
+        a.featureCategoryId as featureCategoryId,
+        b.customerFeatureCategory as featureCategoryName,
+        a.featureType as featureType
+        FROM crm_feature a LEFT JOIN crm_feature_category b
+        ON a.featureCategoryId = b.id
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="getByCode" parameterType="string" resultType="com.clover.customer.beans.domain.CrmFeatureBean">
+        SELECT
+        a.id as id,
+        a.featureCode as featureCode,
+        a.featureName as featureName,
+        a.featureCategoryId as featureCategoryId,
+        b.customerFeatureCategory as featureCategoryName,
+        a.featureType as featureType
+        FROM crm_feature a LEFT JOIN crm_feature_category b
+        ON a.featureCategoryId = b.id
+        WHERE a.featureCode = #{code}
+    </select>
+
+    <insert id="insert" parameterType="com.clover.customer.beans.domain.CrmFeatureBean">
+        INSERT INTO crm_feature (
+        id,
+        featureCode,
+        featureName,
+        featureCategoryId,
+        featureType
+        ) VALUES (
+        #{id,jdbcType=VARCHAR},
+        #{featureCode,jdbcType=VARCHAR},
+        #{featureName,jdbcType=VARCHAR},
+        #{featureCategoryId,jdbcType=VARCHAR},
+        #{featureType,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.clover.customer.beans.domain.CrmFeatureBean">
+        UPDATE crm_feature
+        SET
+        featureCode = #{featureCode,jdbcType=VARCHAR},
+        featureName = #{featureName,jdbcType=VARCHAR},
+        featureCategoryId = #{featureCategoryId,jdbcType=VARCHAR},
+        featureType = #{featureType,jdbcType=VARCHAR}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="string">
+        DELETE FROM crm_feature WHERE id = #{id}
+    </delete>
+
+    <select id="searchAll" parameterType="map" resultType="com.clover.customer.beans.domain.CrmFeatureBean">
+        <include refid="search_selectFields"/>
+        <include refid="search_fromClause"/>
+    </select>
+
+    <select id="countAll" parameterType="map" resultType="int">
+        SELECT COUNT(1)
+        <include refid="search_fromClause"/>
+        <!--<include refid="search_whereClause"/>-->
+    </select>
+
+    <select id="search" parameterType="map" resultType="com.clover.customer.beans.domain.CrmFeatureBean">
+        <include refid="search_selectFields"/>
+        <include refid="search_fromClause"/>
+        <include refid="search_whereClause"/>
+        <include refid="search_sortingClause"/>
+        <include refid="search_pageClause"/>
+    </select>
+
+    <select id="getByCategory" parameterType="map" resultType="com.clover.customer.beans.domain.CrmFeatureBean">
+        <include refid="search_selectFields"/>
+        <include refid="search_fromClause"/>
+        <include refid="search_ByCategoryClause"/>
+        <include refid="search_sortingClause"/>
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT COUNT(1)
+        <include refid="search_fromClause"/>
+        <include refid="search_whereClause"/>
+    </select>
+
+    <sql id="search_selectFields">
+        SELECT
+        d.id as id,
+        d.featureCode as featureCode,
+        d.featureName as featureName,
+        d.featureCategoryId as featureCategoryId,
+        b.customerFeatureCategory as featureCategoryName,
+        d.featureType as featureType
+    </sql>
+
+    <sql id="search_fromClause">
+        FROM crm_feature d LEFT JOIN crm_feature_category b
+        ON d.featureCategoryId = b.id
+    </sql>
+
+    <sql id="search_whereClause">
+        <where>
+            <if test="keyWord != null and keyWord != ''">
+                AND (UPPER(d.featureCode) LIKE UPPER('%${keyWord}%') OR UPPER(d.featureName) LIKE UPPER('%${keyWord}%'))
+            </if>
+        </where>
+    </sql>
+
+    <sql id="search_ByCategoryClause">
+        <where>
+            <if test="category != null and category != ''">
+                AND (UPPER(d.featureCategoryId) = UPPER('${category}') OR UPPER(b.customerFeatureCategory) = UPPER
+                ('${category}%'))
+            </if>
+        </where>
+    </sql>
+
+    <sql id="search_sortingClause">
+        <if test="sortColumn != null and sortColumn != ''">
+            ORDER BY d.${sortColumn}
+        </if>
+        <if test="sortType != null and sortType != 'desc'">
+            DESC
+        </if>
+        <if test="sortType != null and sortType != 'asc'">
+            ASC
+        </if>
+    </sql>
+
+    <sql id="search_pageClause">
+        limit #{startRowNumber},#{pageSize}
+    </sql>
+</mapper>

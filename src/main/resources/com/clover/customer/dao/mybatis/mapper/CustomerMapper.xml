@@ -1,0 +1,84 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clover.customer.dao.mybatis.mapper.CustomerMapper">
+	<select id="get" parameterType="string" resultType="com.clover.customer.beans.domain.CrmCustomerBean">
+		SELECT
+		id as id,
+		customerName as customerName
+		FROM crm_customer
+		WHERE id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="com.clover.customer.beans.domain.CrmCustomerBean">
+		INSERT INTO crm_customer (
+		id,
+		customerName
+		) VALUES (
+		#{id,jdbcType=VARCHAR},
+		#{customerName,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.clover.customer.beans.domain.CrmCustomerBean">
+		UPDATE crm_customer
+		SET
+		customerName = #{customerName,jdbcType=VARCHAR}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="string">
+		DELETE FROM crm_customer WHERE id = #{id}
+	</delete>
+
+	<select id="search" parameterType="map" resultType="com.clover.customer.beans.domain.CrmCustomerBean">
+		<include refid="search_selectFields"/>
+		<include refid="search_fromClause"/>
+		<include refid="search_whereClause"/>
+		<include refid="search_sortingClause"/>
+		<include refid="search_pageClause"/>
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT COUNT(1)
+		<include refid="search_fromClause"/>
+		<include refid="search_whereClause"/>
+	</select>
+
+	<sql id="search_selectFields">
+		SELECT
+		d.id as id,
+		d.customerName as customerName
+	</sql>
+
+	<sql id="search_fromClause">
+		FROM crm_customer d
+	</sql>
+
+	<sql id="search_whereClause">
+		<where>
+			<if test="keyWord != null and keyWord != ''">
+				AND (UPPER(d.customerName) LIKE UPPER('%${keyWord}%'))
+			</if>
+		</where>
+	</sql>
+
+	<sql id="search_sortingClause">
+		<if test="sortColumn != null and sortColumn != ''">
+			ORDER BY d.${sortColumn}
+		</if>
+		<if test="sortType != null and sortType != 'desc'">
+			DESC
+		</if>
+		<if test="sortType != null and sortType != 'asc'">
+			ASC
+		</if>
+	</sql>
+
+	<sql id="search_pageClause">
+		<if test="pageSize != null and pageSize != ''">
+		  limit #{startRowNumber},#{pageSize}
+		</if>
+	</sql>
+</mapper>

@@ -1,0 +1,110 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clover.customer.dao.mybatis.mapper.CustomerFeatureMapper">
+	<select id="get" parameterType="string" resultType="com.clover.customer.beans.domain.CrmCustomerFeatureBean">
+		SELECT
+		a.id as id,
+		a.customerId as customerId,
+		a.customerFeatureId as customerFeatureId,
+		a.customerFeatureValue as customerFeatureValue,
+		b.featureCode as customerFeatureName
+		FROM crm_customer_feature a LEFT JOIN crm_feature b
+		ON a.customerFeatureId = b.id
+		WHERE a.id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="com.clover.customer.beans.domain.CrmCustomerFeatureBean">
+		INSERT INTO crm_customer_feature (
+		id,
+		customerId,
+		customerFeatureId,
+		customerFeatureValue
+		) VALUES (
+		#{id,jdbcType=VARCHAR},
+		#{customerId,jdbcType=VARCHAR},
+		#{customerFeatureId,jdbcType=VARCHAR},
+		#{customerFeatureValue,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.clover.customer.beans.domain.CrmCustomerFeatureBean">
+		UPDATE crm_customer_feature
+		SET
+		customerId = #{customerId,jdbcType=VARCHAR},
+		customerFeatureId = #{customerFeatureId,jdbcType=VARCHAR},
+		customerFeatureValue = #{customerFeatureValue,jdbcType=VARCHAR}
+		WHERE id = #{id} OR (customerId = #{customerId} AND customerFeatureId = #{customerFeatureId})
+	</update>
+
+	<delete id="delete" parameterType="string">
+		DELETE FROM crm_customer_feature WHERE id = #{id}
+	</delete>
+
+	<delete id="deleteByCustomerId" parameterType="string">
+		DELETE FROM crm_customer_feature WHERE customerId = #{customerId}
+	</delete>
+
+	<select id="search" parameterType="map" resultType="com.clover.customer.beans.domain.CrmCustomerFeatureBean">
+		<include refid="search_selectFields"/>
+		<include refid="search_fromClause"/>
+		<include refid="search_whereClause"/>
+		<include refid="search_sortingClause"/>
+		<include refid="search_pageClause"/>
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT COUNT(1)
+		<include refid="search_fromClause"/>
+		<include refid="search_whereClause"/>
+	</select>
+
+	<sql id="search_selectFields">
+		SELECT
+		d.id as id,
+		d.customerId as customerId,
+		d.customerFeatureId as customerFeatureId,
+		d.customerFeatureValue as customerFeatureValue,
+		b.featureCode as customerFeatureName
+	</sql>
+
+	<sql id="search_fromClause">
+		FROM crm_customer_feature d LEFT JOIN crm_feature b
+		ON d.customerFeatureId = b.id
+	</sql>
+
+	<sql id="search_whereClause">
+		<where>
+			<if test="customerFeatureName != null and customerFeatureName != ''">
+				AND (UPPER(b.customerFeatureName) LIKE UPPER('%${customerFeatureName}%'))
+			</if>
+
+			<if test="customerFeatureId != null and customerFeatureId != ''">
+				AND (UPPER(d.customerFeatureId) = UPPER('${customerFeatureId}'))
+			</if>
+
+			<if test="customerId != null and customerId != ''">
+				AND (UPPER(d.customerId) = UPPER('${customerId}'))
+			</if>
+		</where>
+	</sql>
+
+	<sql id="search_sortingClause">
+		<if test="sortColumn != null and sortColumn != ''">
+			ORDER BY d.${sortColumn}
+		</if>
+		<if test="sortType != null and sortType != 'desc'">
+			DESC
+		</if>
+		<if test="sortType != null and sortType != 'asc'">
+			ASC
+		</if>
+	</sql>
+
+	<sql id="search_pageClause">
+		<if test="pageSize != null and pageSize != ''">
+		  limit #{startRowNumber},#{pageSize}
+		</if>
+	</sql>
+</mapper>

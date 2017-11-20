@@ -1,0 +1,90 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clover.customer.dao.mybatis.mapper.CustomerSearchMapper">
+    <select id="searchAll" parameterType="map" resultType="com.clover.customer.beans.vto.CustomerOverviewVto">
+        <include refid="search_selectFields"/>
+        <include refid="search_fromClause"/>
+        <include refid="search_groupClause"/>
+    </select>
+
+    <select id="countAll" parameterType="map" resultType="int">
+        SELECT count(distinct(customerId)) from (
+        <include refid="search_selectFields"/>
+        <include refid="search_fromClause"/>
+        <include refid="search_groupClause"/>
+        ) as t;
+    </select>
+
+    <select id="search" parameterType="map" resultType="com.clover.customer.beans.vto.CustomerOverviewVto">
+        <include refid="search_selectFields"/>
+        <include refid="search_fromClause"/>
+        <include refid="search_groupClause"/>
+        <include refid="search_havingClause"/>
+        <include refid="search_sortingClause"/>
+        <include refid="search_pageClause"/>
+    </select>
+
+    <select id="count" parameterType="map" resultType="int">
+        SELECT count(distinct(customerId)) from (
+        <include refid="search_selectFields"/>
+        <include refid="search_fromClause"/>
+        <include refid="search_groupClause"/>
+        <include refid="search_havingClause"/>
+        ) as t;
+    </select>
+
+    <sql id="search_selectFields">
+        SELECT
+        customerId as customerId,
+        <foreach item="feature" collection="features" index="key" separator=",">
+            MAX(CASE customerFeatureId WHEN '${feature}' THEN customerFeatureValue ELSE '' END ) AS #{key}
+        </foreach>
+    </sql>
+
+    <sql id="search_fromClause">
+        FROM crm_customer_feature
+    </sql>
+
+    <sql id="search_groupClause">
+        GROUP BY customerId
+    </sql>
+
+    <sql id="search_havingClause">
+        <if test="conditions != null">
+        HAVING
+        <foreach item="condition" collection="conditions" index="index" separator="and">
+            <choose>
+              <when
+                      test="condition.conditionExpression != null and (condition.conditionExpression == 'eq'.toString() or condition.conditionExpression == '='.toString())">
+               ${condition.conditionName} = #{condition.conditionValue}
+              </when>
+              <when
+                      test="condition.conditionExpression != null and condition.conditionExpression == 'like'.toString() ">
+                  (${condition.conditionName} is not null AND ${condition.conditionName} LIKE '%${condition.conditionValue}%')
+              </when>
+              <otherwise>
+               ${condition.conditionName} = #{condition.conditionValue}
+              </otherwise>
+            </choose>
+        </foreach>
+        </if>
+    </sql>
+
+    <sql id="search_sortingClause">
+        <if test="sortColumn != null and sortColumn != ''">
+            ORDER BY ${sortColumn}
+        </if>
+        <if test="sortType != null and sortType != 'desc'">
+            DESC
+        </if>
+        <if test="sortType != null and sortType != 'asc'">
+            ASC
+        </if>
+    </sql>
+
+    <sql id="search_pageClause">
+        limit #{startRowNumber},#{pageSize}
+    </sql>
+</mapper>

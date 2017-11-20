@@ -1,0 +1,107 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.clover.customer.dao.mybatis.mapper.FeatureCategoryMapper">
+	<select id="get" parameterType="string" resultType="com.clover.customer.beans.domain.CrmFeatureCategoryBean">
+		SELECT
+		id as id,
+		customerFeatureCategory as customerFeatureCategory,
+		customerFeatureCategoryCode as customerFeatureCategoryCode
+		FROM crm_feature_category
+		WHERE id = #{id}
+	</select>
+
+	<select id="getByCode" parameterType="string" resultType="com.clover.customer.beans.domain.CrmFeatureCategoryBean">
+		SELECT
+		id as id,
+		customerFeatureCategory as customerFeatureCategory,
+		customerFeatureCategoryCode as customerFeatureCategoryCode
+		FROM crm_feature_category
+		WHERE customerFeatureCategoryCode = #{code}
+	</select>
+
+	<insert id="insert" parameterType="com.clover.customer.beans.domain.CrmFeatureCategoryBean">
+		INSERT INTO crm_feature_category (
+		id,
+		customerFeatureCategory,
+		customerFeatureCategoryCode
+		) VALUES (
+		#{id,jdbcType=VARCHAR},
+		#{customerFeatureCategory,jdbcType=VARCHAR},
+		#{customerFeatureCategoryCode,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="update" parameterType="com.clover.customer.beans.domain.CrmFeatureCategoryBean">
+		UPDATE crm_feature_category
+		SET
+		customerFeatureCategory = #{customerFeatureCategory,jdbcType=VARCHAR},
+		customerFeatureCategoryCode = #{customerFeatureCategoryCode,jdbcType=VARCHAR}
+		WHERE id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="string">
+		DELETE FROM crm_feature_category WHERE id = #{id}
+	</delete>
+
+	<select id="searchAll" parameterType="map" resultType="com.clover.customer.beans.domain.CrmFeatureCategoryBean">
+		<include refid="search_selectFields"/>
+		<include refid="search_fromClause"/>
+	</select>
+
+	<select id="countAll" parameterType="map" resultType="int">
+		SELECT COUNT(1)
+		<include refid="search_fromClause"/>
+		<!--<include refid="search_whereClause"/>-->
+	</select>
+
+	<select id="search" parameterType="map" resultType="com.clover.customer.beans.domain.CrmFeatureCategoryBean">
+		<include refid="search_selectFields"/>
+		<include refid="search_fromClause"/>
+		<include refid="search_whereClause"/>
+		<include refid="search_sortingClause"/>
+		<include refid="search_pageClause"/>
+	</select>
+
+	<select id="count" parameterType="map" resultType="int">
+		SELECT COUNT(1)
+		<include refid="search_fromClause"/>
+		<include refid="search_whereClause"/>
+	</select>
+
+	<sql id="search_selectFields">
+		SELECT
+		d.id as id,
+		d.customerFeatureCategory as customerFeatureCategory,
+		d.customerFeatureCategoryCode as customerFeatureCategoryCode
+	</sql>
+
+	<sql id="search_fromClause">
+		FROM crm_feature_category d
+	</sql>
+
+	<sql id="search_whereClause">
+		<where>
+			<if test="keyWord != null and keyWord != ''">
+				AND (UPPER(d.customerFeatureCategory) LIKE UPPER('%${keyWord}%'))
+			</if>
+		</where>
+	</sql>
+
+	<sql id="search_sortingClause">
+		<if test="sortColumn != null and sortColumn != ''">
+			ORDER BY d.${sortColumn}
+		</if>
+		<if test="sortType != null and sortType != 'desc'">
+			DESC
+		</if>
+		<if test="sortType != null and sortType != 'asc'">
+			ASC
+		</if>
+	</sql>
+
+	<sql id="search_pageClause">
+		limit #{startRowNumber},#{pageSize}
+	</sql>
+</mapper>
