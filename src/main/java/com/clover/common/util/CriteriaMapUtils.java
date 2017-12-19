@@ -53,12 +53,18 @@ public class CriteriaMapUtils {
             String[] conditionArray = conditionStr.split("\\$");
             for(String oneConditionStr : conditionArray){
                 String[] condition = oneConditionStr.split("::");
-                ConditionBean conditionBean = new ConditionBean();
-                conditionBean.setConditionName(condition[0]);
-                conditionBean.setConditionExpression(condition[1]);
-                conditionBean.setConditionValue(condition[2]);
-                conditions.add(conditionBean);
-                //System.out.println(conditionBean.toString());
+                if(condition.length == 3){
+                    try{
+                        ConditionBean conditionBean = new ConditionBean();
+                        conditionBean.setConditionName(condition[0]);
+                        conditionBean.setConditionExpression(condition[1]);
+                        conditionBean.setConditionValue(condition[2]);
+                        conditions.add(conditionBean);
+                        //System.out.println(conditionBean.toString());
+                    }catch (Exception e){
+
+                    }
+                }
             }
         }catch (Exception e){
 
